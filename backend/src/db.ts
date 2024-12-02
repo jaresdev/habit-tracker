@@ -1,4 +1,7 @@
+import { config } from 'dotenv-flow'
 import { Pool } from 'pg'
+
+config()
 
 const pool = new Pool({
   user: process.env.DB_USER,

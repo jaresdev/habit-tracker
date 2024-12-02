@@ -5,8 +5,6 @@ import './db'
 
 dotenv.config()
 
-console.log(`DB_USER: ${process.env.DB_USER}`)
-
 const app = express()
 
 app.use(express.json())
