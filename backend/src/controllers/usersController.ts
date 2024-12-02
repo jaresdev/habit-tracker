@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcrypt'
 import pool from '../db'
+import { ValidationError } from '../utils/ValidationError'
+import { NotFoundError } from '../utils/NotFoundError'
+import { DuplicateError } from '../utils/DuplicateError'
 
 interface UserRequestBody {
   username: string
@@ -12,13 +15,14 @@ export const createUser = async (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
+): Promise<void> => {
   const { username, email, password } = req.body as UserRequestBody
+
   if (!username || !email || !password) {
-    return res.status(400).json({
-      error: 'Username, email and password are required',
-    })
+    next(new ValidationError('Username, email and password are required'))
+    return
   }
+
   try {
     const saltRounds = 10
     const passwordHash = await bcrypt.hash(password, saltRounds)
@@ -29,9 +33,7 @@ export const createUser = async (
     )
     res.status(201).json(result.rows[0])
   } catch (error: unknown) {
-    // Check error type
-    console.error(`Error creating user: ${error}`)
-    res.status(500).json({ error: 'Failed to create user' })
+    next(new DuplicateError('Duplicate key value violates unique constraint.'))
   }
 }
 
@@ -39,13 +41,12 @@ export const getUser = async (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
+): Promise<void> => {
   const { id } = req.params
 
   if (!id) {
-    return res.status(400).json({
-      error: 'The parameter id is required.',
-    })
+    next(new ValidationError('The parameter id is required.'))
+    return
   }
 
   try {
@@ -59,12 +60,9 @@ export const getUser = async (
     if (user) {
       res.status(200).json(result.rows[0])
     } else {
-      res.status(404).json({
-        error: 'User not found.',
-      })
+      next(new NotFoundError('User not found.'))
     }
   } catch (error: unknown) {
-    console.log(`Error getting the user: ${error}`)
-    res.status(500).json({ error: 'Failed to get user.' })
+    next(error)
   }
 }
