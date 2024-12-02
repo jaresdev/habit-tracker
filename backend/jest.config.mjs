@@ -1,7 +1,7 @@
 import presets from 'ts-jest/presets/index.js'
 
 export default {
-  ...presets.defaultsESM, // Accedemos a defaultsESM desde el objeto importado
+  ...presets.defaultsESM,
   testEnvironment: 'node',
   transform: {
     '^.+\\.ts$': [
