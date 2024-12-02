@@ -34,3 +34,37 @@ export const createUser = async (
     res.status(500).json({ error: 'Failed to create user' })
   }
 }
+
+export const getUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { id } = req.params
+
+  if (!id) {
+    return res.status(400).json({
+      error: 'The parameter id is required.',
+    })
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT id, username, email FROM users WHERE id=$1`,
+      [id],
+    )
+
+    const user = result.rows[0]
+
+    if (user) {
+      res.status(200).json(result.rows[0])
+    } else {
+      res.status(404).json({
+        error: 'User not found.',
+      })
+    }
+  } catch (error: unknown) {
+    console.log(`Error getting the user: ${error}`)
+    res.status(500).json({ error: 'Failed to get user.' })
+  }
+}

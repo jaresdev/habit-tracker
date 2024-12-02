@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express'
 import { Router } from 'express'
 import pool from './db'
-import { createUser } from './controllers/usersController'
+import { createUser, getUser } from './controllers/usersController'
 
 const router = Router()
 
@@ -37,5 +37,6 @@ router.get('/health', async (req: Request, res: Response) => {
 })
 
 router.post('/users', createUser)
+router.get('/users/:id', getUser)
 
 export default router
