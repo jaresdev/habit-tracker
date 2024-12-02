@@ -14,5 +14,5 @@
   "ts-node": {
     "esm": true
   },
-  "include": ["src", "tests"]
+  "include": ["src", "src/tests", "src/server.tssrc/utils/app.tsp.ts"]
 }
