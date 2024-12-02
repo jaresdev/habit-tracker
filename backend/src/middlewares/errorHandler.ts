@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
 import logger from '../utils/logger'
-import { timeStamp } from 'console'
 
 export const errorHandler = (
   err: any,
@@ -43,6 +42,20 @@ export const errorHandler = (
     logger.error(`Validation error: ${err.message}`)
 
     res.status(400).json({
+      error: {
+        message: err.message,
+        details: {
+          service: 'Database',
+          timeStamp: new Date().toISOString(),
+        },
+      },
+    })
+
+    return
+  } else if (err.name === 'NotFoundError') {
+    logger.error(`Not found error: ${err.message}`)
+
+    res.status(404).json({
       error: {
         message: err.message,
         details: {

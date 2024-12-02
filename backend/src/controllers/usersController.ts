@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcrypt'
 import pool from '../db'
 import { ValidationError } from '../utils/ValidationError'
+import { NotFoundError } from '../utils/NotFoundError'
 
 interface UserRequestBody {
   username: string
@@ -58,10 +59,7 @@ export const getUser = async (
     if (user) {
       res.status(200).json(result.rows[0])
     } else {
-      const error = new Error()
-      error.name = 'User not found'
-
-      next(error)
+      next(new NotFoundError('User not found.'))
     }
   } catch (error: unknown) {
     next(error)
