@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcrypt'
 import pool from '../db'
-import logger from '../utils/logger'
 
 interface UserRequestBody {
   username: string
@@ -13,12 +12,14 @@ export const createUser = async (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
+): Promise<void> => {
   const { username, email, password } = req.body as UserRequestBody
   if (!username || !email || !password) {
-    return res.status(400).json({
+    res.status(400).json({
       error: 'Username, email and password are required',
     })
+
+    return
   }
   try {
     const saltRounds = 10
@@ -31,8 +32,9 @@ export const createUser = async (
     res.status(201).json(result.rows[0])
   } catch (error: unknown) {
     // Check error type
-    logger.error(`Error creating user: ${error}`)
-    res.status(500).json({ error: 'Failed to create user' })
+    // logger.error(`Error creating user: ${error}`)
+    // res.status(500).json({ error: 'Failed to create user' })
+    next(error)
   }
 }
 
@@ -40,13 +42,15 @@ export const getUser = async (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
+): Promise<void> => {
   const { id } = req.params
 
   if (!id) {
-    return res.status(400).json({
+    res.status(400).json({
       error: 'The parameter id is required.',
     })
+
+    return
   }
 
   try {
@@ -65,7 +69,8 @@ export const getUser = async (
       })
     }
   } catch (error: unknown) {
-    logger.error(`Error getting the user: ${error}`)
-    res.status(500).json({ error: 'Failed to get user.' })
+    // logger.error(`Error getting the user: ${error}`)
+    // res.status(500).json({ error: 'Failed to get user.' })
+    next(error)
   }
 }
