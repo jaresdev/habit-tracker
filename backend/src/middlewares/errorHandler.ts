@@ -32,7 +32,7 @@ export const errorHandler = (
       error: {
         message: 'User not found.',
         details: {
-          servicce: 'Database',
+          service: 'Database',
           timeStamp: new Date().toISOString(),
         },
       },
