@@ -2,6 +2,7 @@ import type { Request, Response } from 'express'
 import { Router } from 'express'
 import pool from './db'
 import { createUser, getUser } from './controllers/usersController'
+import logger from './utils/logger'
 
 const router = Router()
 
@@ -17,7 +18,7 @@ router.get('/health', async (req: Request, res: Response) => {
     })
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error('Health check failed:', error.message)
+      logger.error('Health check failed:', error.message)
       res.status(500).json({
         status: 'error',
         database: 'unhealthy',
@@ -25,7 +26,7 @@ router.get('/health', async (req: Request, res: Response) => {
         timestamp: new Date().toISOString(),
       })
     } else {
-      console.error('Unknown error:', error)
+      logger.error('Unknown error:', error)
       res.status(500).json({
         status: 'error',
         database: 'unhealthy',

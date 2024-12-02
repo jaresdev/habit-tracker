@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcrypt'
 import pool from '../db'
+import logger from '../utils/logger'
 
 interface UserRequestBody {
   username: string
@@ -30,7 +31,7 @@ export const createUser = async (
     res.status(201).json(result.rows[0])
   } catch (error: unknown) {
     // Check error type
-    console.error(`Error creating user: ${error}`)
+    logger.error(`Error creating user: ${error}`)
     res.status(500).json({ error: 'Failed to create user' })
   }
 }
@@ -64,7 +65,7 @@ export const getUser = async (
       })
     }
   } catch (error: unknown) {
-    console.log(`Error getting the user: ${error}`)
+    logger.error(`Error getting the user: ${error}`)
     res.status(500).json({ error: 'Failed to get user.' })
   }
 }
