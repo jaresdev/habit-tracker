@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcrypt'
 import pool from '../db'
+import logger from '../utils/logger'
+import { ValidationError } from '../utils/ValidationError'
 
 interface UserRequestBody {
   username: string
@@ -14,13 +16,12 @@ export const createUser = async (
   next: NextFunction,
 ): Promise<void> => {
   const { username, email, password } = req.body as UserRequestBody
-  if (!username || !email || !password) {
-    res.status(400).json({
-      error: 'Username, email and password are required',
-    })
 
+  if (!username || !email || !password) {
+    next(new ValidationError('Username, email and password are required'))
     return
   }
+
   try {
     const saltRounds = 10
     const passwordHash = await bcrypt.hash(password, saltRounds)
@@ -31,9 +32,6 @@ export const createUser = async (
     )
     res.status(201).json(result.rows[0])
   } catch (error: unknown) {
-    // Check error type
-    // logger.error(`Error creating user: ${error}`)
-    // res.status(500).json({ error: 'Failed to create user' })
     next(error)
   }
 }
@@ -64,13 +62,12 @@ export const getUser = async (
     if (user) {
       res.status(200).json(result.rows[0])
     } else {
-      res.status(404).json({
-        error: 'User not found.',
-      })
+      const error = new Error()
+      error.name = 'User not found'
+
+      next(error)
     }
   } catch (error: unknown) {
-    // logger.error(`Error getting the user: ${error}`)
-    // res.status(500).json({ error: 'Failed to get user.' })
     next(error)
   }
 }

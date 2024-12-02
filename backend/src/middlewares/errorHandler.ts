@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import logger from '../utils/logger'
+import { timeStamp } from 'console'
 
 export const errorHandler = (
   err: any,
@@ -22,6 +23,35 @@ export const errorHandler = (
         },
       },
     })
+
+    return
+  } else if (err.name === 'User not found') {
+    logger.error(`Error getting the user: ${err}`)
+
+    res.status(404).json({
+      error: {
+        message: 'User not found.',
+        details: {
+          servicce: 'Database',
+          timeStamp: new Date().toISOString(),
+        },
+      },
+    })
+
+    return
+  } else if (err.name === 'ValidationError') {
+    logger.error(`Validation error: ${err.message}`)
+
+    res.status(400).json({
+      error: {
+        message: err.message,
+        details: {
+          service: 'Database',
+          timeStamp: new Date().toISOString(),
+        },
+      },
+    })
+
     return
   }
 
