@@ -1,4 +1,4 @@
-import app from './utils/app'
+import app from './app'
 import { findAvailablePort } from './utils/portUtils'
 ;(async () => {
   try {
