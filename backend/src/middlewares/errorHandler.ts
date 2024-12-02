@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import logger from '../utils/logger'
+import { collapseTextChangeRangesAcrossMultipleVersions } from 'typescript'
 
 export const errorHandler = (
   err: any,
@@ -60,6 +61,21 @@ export const errorHandler = (
         message: err.message,
         details: {
           service: 'Database',
+          timeStamp: new Date().toISOString(),
+        },
+      },
+    })
+
+    return
+  } else if (err.name === 'WebHealthError') {
+    logger.error(`Heath check failed: ${err.message}`)
+
+    res.status(500).json({
+      error: {
+        message: err.message,
+        details: {
+          service: 'Website',
+          database: 'unhealthy',
           timeStamp: new Date().toISOString(),
         },
       },

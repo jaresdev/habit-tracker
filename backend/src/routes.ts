@@ -3,6 +3,7 @@ import { Router } from 'express'
 import pool from './db'
 import { createUser, getUser } from './controllers/usersController'
 import logger from './utils/logger'
+import { WebHealthError } from './utils/WebHealthError'
 
 const router = Router()
 
@@ -19,23 +20,7 @@ router.get(
         timestamp: new Date().toISOString(),
       })
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        logger.error('Health check failed:', error.message)
-        res.status(500).json({
-          status: 'error',
-          database: 'unhealthy',
-          error: error.message,
-          timestamp: new Date().toISOString(),
-        })
-      } else {
-        logger.error('Unknown error:', error)
-        res.status(500).json({
-          status: 'error',
-          database: 'unhealthy',
-          error: 'An unknown error occurred',
-          timestamp: new Date().toISOString(),
-        })
-      }
+      next(new WebHealthError(`Health check failed.`))
     }
   },
 )
