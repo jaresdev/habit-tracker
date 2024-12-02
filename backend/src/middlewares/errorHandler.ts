@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
 import logger from '../utils/logger'
-import { collapseTextChangeRangesAcrossMultipleVersions } from 'typescript'
 
 export const errorHandler = (
   err: any,
@@ -76,6 +75,20 @@ export const errorHandler = (
         details: {
           service: 'Website',
           database: 'unhealthy',
+          timeStamp: new Date().toISOString(),
+        },
+      },
+    })
+
+    return
+  } else if (err.name === 'DuplicateError') {
+    logger.error(`Duplicate key value: ${err.message}`)
+
+    res.status(err.status).json({
+      error: {
+        message: err.message,
+        details: {
+          service: 'Database',
           timeStamp: new Date().toISOString(),
         },
       },

@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import pool from '../db'
 import { ValidationError } from '../utils/ValidationError'
 import { NotFoundError } from '../utils/NotFoundError'
+import { DuplicateError } from '../utils/DuplicateError'
 
 interface UserRequestBody {
   username: string
@@ -32,7 +33,7 @@ export const createUser = async (
     )
     res.status(201).json(result.rows[0])
   } catch (error: unknown) {
-    next(error)
+    next(new DuplicateError('Duplicate key value violates unique constraint.'))
   }
 }
 
