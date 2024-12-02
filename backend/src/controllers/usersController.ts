@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcrypt'
 import pool from '../db'
-import logger from '../utils/logger'
 import { ValidationError } from '../utils/ValidationError'
 
 interface UserRequestBody {
@@ -44,10 +43,7 @@ export const getUser = async (
   const { id } = req.params
 
   if (!id) {
-    res.status(400).json({
-      error: 'The parameter id is required.',
-    })
-
+    next(new ValidationError('The parameter id is required.'))
     return
   }
 
