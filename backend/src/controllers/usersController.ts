@@ -123,3 +123,64 @@ export const deleteUser = async (
     next(error)
   }
 }
+
+export const updateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  const { id } = req.params
+  const { username, email, password } = req.body as UserRequestBody
+
+  if (!id) {
+    next(new ValidationError('The parameter id is required.'))
+    return
+  }
+
+  if (!username && !email && !password) {
+    next(new ValidationError('At least one field is require to update.'))
+    return
+  }
+
+  try {
+    const fieldsToUpdate = []
+    const values = []
+    let query = 'UPDATE users SET '
+
+    if (username) {
+      fieldsToUpdate.push('username = $1')
+      values.push(username)
+    }
+
+    if (email) {
+      fieldsToUpdate.push('email = $2')
+      values.push(email)
+    }
+
+    query += fieldsToUpdate.join(', ')
+    query += ' WHERE id = $3 RETURNING id, username, email'
+    values.push(id)
+
+    const result = await pool.query(query, values)
+
+    if (result.rows.length !== 0) {
+      res.status(200).json({
+        message: `User with id ${id} updated successfully.`,
+        userUpdated: result.rows[0],
+      })
+    } else {
+      next(new NotFoundError('User not found.'))
+      return
+    }
+  } catch (error: any) {
+    if (error.code === '23505') {
+      next(
+        new DuplicateError('Duplicate key value violates unique constraint.'),
+      )
+    } else if (error.name === 'ECONNREFUSED') {
+      next(new EconnRefusedError('Database connection refused.'))
+    } else {
+      next(res.status(500).json({ error: 'An unexpected error occurred.' }))
+    }
+  }
+}
