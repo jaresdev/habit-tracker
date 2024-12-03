@@ -75,3 +75,20 @@ export const getUser = async (
     next(error)
   }
 }
+
+export const getAllUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const result = await pool.query(`SELECT id, username, email FROM users`)
+    const users = result.rows
+
+    if (users) {
+      res.status(200).json(users)
+    }
+  } catch (error: unknown) {
+    next(error)
+  }
+}

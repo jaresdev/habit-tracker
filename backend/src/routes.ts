@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 import { Router } from 'express'
 import pool from './db'
-import { createUser, getUser } from './controllers/usersController'
+import { createUser, getAllUsers, getUser } from './controllers/usersController'
 import { WebHealthError } from './utils/WebHealthError'
 
 const router = Router()
@@ -25,6 +25,7 @@ router.get(
 )
 
 router.post('/users', createUser)
+router.get('/users', getAllUsers)
 router.get('/users/:id', getUser)
 
 export default router

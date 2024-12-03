@@ -124,4 +124,53 @@ describe('UserController Test', () => {
       expect(response.body).toEqual(mockUser)
     })
   })
+
+  describe('Get many users tests', () => {
+    it('should return empty array if there are no users', async () => {
+      ;(pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] })
+
+      const response = await request(app).get('/api/users')
+
+      expect(response.status).toBe(200)
+      expect(response.body).toEqual([])
+    })
+
+    it('should return all users', async () => {
+      const mockUsers = [
+        {
+          username: 'johndoe',
+          email: 'johndoe@example.com',
+          password: 'securepassword123',
+        },
+        {
+          username: 'jaresdev',
+          email: 'jaresdev@example.com',
+          password: 'securepassword123',
+        },
+        {
+          username: 'techguru',
+          email: 'techguru@example.com',
+          password: 'strongpassword1!',
+        },
+      ]
+
+      ;(pool.query as jest.Mock).mockResolvedValueOnce({ rows: [mockUsers] })
+
+      const response = await request(app).get('/api/users')
+
+      expect(response.status).toBe(200)
+      expect(response.body[0].length).toEqual(mockUsers.length)
+    })
+
+    it('should return a 500 error if there is an unexpected error', async () => {
+      ;(pool.query as jest.Mock).mockRejectedValueOnce(
+        new Error('Unexpected error'),
+      )
+
+      const response = await request(app).get('/api/users')
+
+      expect(response.status).toBe(500)
+      expect(response.body.error.message).toBe('Unexpected error')
+    })
+  })
 })
