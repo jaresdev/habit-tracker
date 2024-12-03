@@ -2,7 +2,6 @@ import type { NextFunction, Request, Response } from 'express'
 import { Router } from 'express'
 import pool from './db'
 import { createUser, getUser } from './controllers/usersController'
-import logger from './utils/logger'
 import { WebHealthError } from './utils/WebHealthError'
 
 const router = Router()
@@ -20,7 +19,7 @@ router.get(
         timestamp: new Date().toISOString(),
       })
     } catch (error: unknown) {
-      next(new WebHealthError(`Health check failed.`))
+      next(new WebHealthError('Health check failed.'))
     }
   },
 )
