@@ -92,3 +92,34 @@ export const getAllUsers = async (
     next(error)
   }
 }
+
+export const deleteUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  const { id } = req.params
+
+  if (!id) {
+    next(new ValidationError('The parameter id is required.'))
+    return
+  }
+
+  try {
+    const result = await pool.query(
+      'DELETE FROM users WHERE id=$1 RETURNING id',
+      [id],
+    )
+
+    if (result.rows.length !== 0) {
+      res.status(200).json({
+        message: `User with id ${id} deleted successfully.`,
+      })
+    } else {
+      next(new NotFoundError('User not found.'))
+      return
+    }
+  } catch (error: unknown) {
+    next(error)
+  }
+}
