@@ -6,7 +6,7 @@
     "start": "NODE_ENV=production bun run src/server.ts",
     "dev": "NODE_ENV=development bun run src/server.ts",
     "build": "bun run tsc",
-    "test": "bun run jest --config jest.config.mjs"
+    "test": "NODE_ENV=test bun run jest --config jest.config.mjs"
   },
   "devDependencies": {
     "@types/bcrypt": "5.0.2",

@@ -9,10 +9,11 @@ export const errorHandler = (
 ): void => {
   const status = err.status || 500
 
-  if (err.name === 'ECONNREFUSED') {
-    logger.error('Database connection error: ', err)
+  if (err.name === 'EconnRefusedError') {
+    if (process.env.NODE_ENV !== 'test')
+      logger.error('Database connection error: ', err)
 
-    res.status(503).json({
+    res.status(err.status).json({
       error: {
         message: 'Service unavailable. Please try again later.',
         code: 'ECONNREFUSED',
@@ -24,24 +25,11 @@ export const errorHandler = (
     })
 
     return
-  } else if (err.name === 'User not found') {
-    logger.error(`Error getting the user: ${err}`)
+  } else if (err.name === 'NotFoundError') {
+    if (process.env.NODE_ENV !== 'test')
+      logger.error(`Error getting the user: ${err}`)
 
-    res.status(404).json({
-      error: {
-        message: 'User not found.',
-        details: {
-          service: 'Database',
-          timeStamp: new Date().toISOString(),
-        },
-      },
-    })
-
-    return
-  } else if (err.name === 'ValidationError') {
-    logger.error(`Validation error: ${err.message}`)
-
-    res.status(400).json({
+    res.status(err.status).json({
       error: {
         message: err.message,
         details: {
@@ -52,10 +40,11 @@ export const errorHandler = (
     })
 
     return
-  } else if (err.name === 'NotFoundError') {
-    logger.error(`Not found error: ${err.message}`)
+  } else if (err.name === 'ValidationError') {
+    if (process.env.NODE_ENV !== 'test')
+      logger.error(`Validation error: ${err.message}`)
 
-    res.status(404).json({
+    res.status(err.status).json({
       error: {
         message: err.message,
         details: {
@@ -67,9 +56,10 @@ export const errorHandler = (
 
     return
   } else if (err.name === 'WebHealthError') {
-    logger.error(`Heath check failed: ${err.message}`)
+    if (process.env.NODE_ENV !== 'test')
+      logger.error(`Heath check failed: ${err.message}`)
 
-    res.status(500).json({
+    res.status(err.status).json({
       error: {
         message: err.message,
         details: {
@@ -82,7 +72,8 @@ export const errorHandler = (
 
     return
   } else if (err.name === 'DuplicateError') {
-    logger.error(`Duplicate key value: ${err.message}`)
+    if (process.env.NODE_ENV !== 'test')
+      logger.error(`Duplicate key value: ${err.message}`)
 
     res.status(err.status).json({
       error: {
@@ -104,7 +95,10 @@ export const errorHandler = (
     },
   })
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    process.env.NODE_ENV !== 'test'
+  ) {
     logger.error(err.stack)
   }
 }

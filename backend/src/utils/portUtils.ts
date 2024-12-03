@@ -5,7 +5,10 @@ import net from 'net'
  * @param {number} desiredPort - The port to check or start from.
  * @returns {Promise<number>} - A promise that resolves to an available port.
  */
-export function findAvailablePort(desiredPort: number): Promise<number> {
+export function findAvailablePort(
+  desiredPort: number,
+  attemps: number = 10,
+): Promise<number> {
   return new Promise((resolve, reject) => {
     const server = net.createServer()
 
@@ -17,7 +20,13 @@ export function findAvailablePort(desiredPort: number): Promise<number> {
     server.on('error', (err: any) => {
       if (err.code === 'EADDRINUSE') {
         // Retry with another port
-        findAvailablePort(0).then(resolve).catch(reject)
+        if (attemps > 0) {
+          findAvailablePort(0, attemps - 1)
+            .then(resolve)
+            .catch(reject)
+        } else {
+          reject(new Error('No available ports after multiple attempts'))
+        }
       } else {
         reject(err)
       }

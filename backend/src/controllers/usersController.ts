@@ -4,6 +4,7 @@ import pool from '../db'
 import { ValidationError } from '../utils/ValidationError'
 import { NotFoundError } from '../utils/NotFoundError'
 import { DuplicateError } from '../utils/DuplicateError'
+import { EconnRefusedError } from '../utils/EconnRefusedError'
 
 interface UserRequestBody {
   username: string
@@ -32,8 +33,16 @@ export const createUser = async (
       [username, email, passwordHash],
     )
     res.status(201).json(result.rows[0])
-  } catch (error: unknown) {
-    next(new DuplicateError('Duplicate key value violates unique constraint.'))
+  } catch (error: any) {
+    if (error.code === '23505') {
+      next(
+        new DuplicateError('Duplicate key value violates unique constraint.'),
+      )
+    } else if (error.name === 'ECONNREFUSED') {
+      next(new EconnRefusedError('Database connection refused.'))
+    } else {
+      next(res.status(500).json({ error: 'An unexpected error occurred.' }))
+    }
   }
 }
 

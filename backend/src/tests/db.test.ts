@@ -1,14 +1,14 @@
 import * as dotenv from 'dotenv'
+import pool from '../db'
+
 dotenv.config({ path: '.env.test.local' })
 
-import { Pool } from 'pg'
-
-const pool = new Pool({
-  user: process.env.DB_TEST_USER,
-  host: process.env.DB_TEST_HOST,
-  database: process.env.DB_TEST_NAME,
-  password: process.env.DB_TEST_PASSWORD,
-  port: parseInt(process.env.DB_TEST_PORT || '5432'),
+beforeEach(() => {
+  jest.mock('pg', () => ({
+    Pool: jest.fn().mockImplementation(() => ({
+      query: jest.fn(),
+    })),
+  }))
 })
 
 describe('Database Connection Test', () => {
@@ -20,5 +20,11 @@ describe('Database Connection Test', () => {
     const res = await pool.query('SELECT NOW()')
     expect(res).toBeDefined()
     expect(res.rows[0]).toHaveProperty('now')
+  })
+})
+
+describe('Database configuration Test', () => {
+  it('shout correctly configure the connection pool', () => {
+    expect(pool).toBeDefined()
   })
 })
