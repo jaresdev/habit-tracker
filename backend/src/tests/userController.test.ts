@@ -173,4 +173,43 @@ describe('UserController Test', () => {
       expect(response.body.error.message).toBe('Unexpected error')
     })
   })
+
+  describe('Delete an user tests', () => {
+    it('should return 404 error if the user does not exists', async () => {
+      ;(pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] })
+
+      const response = await request(app).delete('/api/users/1232234')
+
+      expect(response.status).toBe(404)
+      expect(response.body.error.message).toBe('User not found.')
+    })
+
+    it('should return a 500 error if there is an unexpected error', async () => {
+      ;(pool.query as jest.Mock).mockRejectedValueOnce(
+        new Error('Unexpected error'),
+      )
+
+      const response = await request(app).delete('/api/users/1232234')
+
+      expect(response.status).toBe(500)
+      expect(response.body.error.message).toBe('Unexpected error')
+    })
+
+    it('should delete an user', async () => {
+      const mockUser = {
+        id: 123,
+        username: 'testuser',
+        email: 'test@example.com',
+      }
+
+      ;(pool.query as jest.Mock).mockResolvedValueOnce({ rows: [mockUser] })
+
+      const response = await request(app).delete('/api/users/123')
+
+      expect(response.status).toBe(200)
+      expect(response.body.message).toBe(
+        'User with id 123 deleted successfully.',
+      )
+    })
+  })
 })
