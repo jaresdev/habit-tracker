@@ -212,4 +212,40 @@ describe('UserController Test', () => {
       )
     })
   })
+
+  describe('Update an user tests', () => {
+    it('should return an updated user', async () => {
+      const mockUser = {
+        id: 20,
+        username: 'newtestuserUpdated',
+        email: 'newtestUpdated@example.com',
+      }
+
+      ;(pool.query as jest.Mock).mockResolvedValueOnce({ rows: [mockUser] })
+
+      const response = await request(app).put('/api/users/20').send({
+        username: 'newtestuserUpdated',
+        email: 'newtestUpdated@example.com',
+      })
+
+      expect(response.status).toBe(200)
+      expect(response.body.message).toBe(
+        'User with id 20 updated successfully.',
+      )
+      expect(response.body.userUpdated.username).toBe('newtestuserUpdated')
+      expect(response.body.userUpdated.email).toBe('newtestUpdated@example.com')
+    })
+
+    it('should return 404 error if the user does not exists', async () => {
+      ;(pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] })
+
+      const response = await request(app).put('/api/users/12323423').send({
+        username: 'johndoe1',
+        email: 'johndoe@example.com',
+      })
+
+      expect(response.status).toBe(404)
+      expect(response.body.error.message).toBe('User not found.')
+    })
+  })
 })
