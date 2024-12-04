@@ -8,6 +8,7 @@ import {
   deleteUser,
   updateUser,
 } from './controllers/usersController'
+import { createHabit } from './controllers/habitsController'
 import { WebHealthError } from './utils/WebHealthError'
 
 const router = Router()
@@ -30,10 +31,14 @@ router.get(
   },
 )
 
+// User routes
 router.post('/users', createUser)
 router.get('/users', getAllUsers)
 router.get('/users/:id', getUser)
 router.put('/users/:id', updateUser)
 router.delete('/users/:id', deleteUser)
+
+// Habit routes
+router.post('/habits', createHabit)
 
 export default router
